@@ -1,6 +1,9 @@
 
 FROM ubuntu:focal
 
+ARG MISPVER
+RUN echo "Building MISP version: $MISPVER"
+
 # Install core components
 ENV DEBIAN_FRONTEND noninteractive
 
