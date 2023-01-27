@@ -1,4 +1,4 @@
-MISP Docker
+MISP Docker ---
 ===========
 
 [![](https://travis-ci.org/MISP/misp-docker.svg?branch=master)](https://travis-ci.org/yaleman/misp-docker)
