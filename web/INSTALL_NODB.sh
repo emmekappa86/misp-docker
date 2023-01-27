@@ -1319,7 +1319,7 @@ installCore () {
   if [[ ! -d ${PATH_TO_MISP} ]]; then
     sudo mkdir ${PATH_TO_MISP}
     sudo chown ${WWW_USER}:${WWW_USER} ${PATH_TO_MISP}
-    false; while [[ $? -ne 0 ]]; do checkAptLock; ${SUDO_WWW} git clone https://github.com/MISP/MISP.git ${PATH_TO_MISP}; done
+    false; while [[ $? -ne 0 ]]; do checkAptLock; ${SUDO_WWW} git clone https://github.com/MISP/MISP.git --branch ${MISPVER} ${PATH_TO_MISP}; done
     false; while [[ $? -ne 0 ]]; do checkAptLock; ${SUDO_WWW} git -C ${PATH_TO_MISP} submodule update --progress --init --recursive; done
     # Make git ignore filesystem permission differences for submodules
     ${SUDO_WWW} git -C ${PATH_TO_MISP} submodule foreach --recursive git config core.filemode false
@@ -2043,7 +2043,7 @@ installCoreRHEL () {
   sudo mkdir -p $(dirname $PATH_TO_MISP)
   sudo chown $WWW_USER:$WWW_USER $(dirname $PATH_TO_MISP)
   cd $(dirname $PATH_TO_MISP)
-  $SUDO_WWW git clone https://github.com/MISP/MISP.git
+  $SUDO_WWW git clone https://github.com/MISP/MISP.git --branch ${MISPVER}
   cd $PATH_TO_MISP
   ##$SUDO_WWW git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`)
   # if the last shortcut doesn't work, specify the latest version manually
@@ -2648,7 +2648,7 @@ installSupported () {
   # Install Core Dependencies - functionLocation('INSTALL.ubuntu1804.md')
   [[ -n $CORE ]]   || [[ -n $ALL ]] && installCoreDeps
   progress 4
-
+  
   if [[ "$1" =~ ^PHP= ]]; then
     PHP_VER=$(echo $1 |cut -f2 -d=)
     if [[ "$PHP_VER" == 7.2 ]]; then
@@ -2802,7 +2802,7 @@ installMISPonKali () {
   sudo mkdir ${PATH_TO_MISP}
   sudo chown ${WWW_USER}:${WWW_USER} ${PATH_TO_MISP}
   cd ${PATH_TO_MISP}
-  false; while [[ $? -ne 0 ]]; do ${SUDO_WWW} git clone https://github.com/MISP/MISP.git ${PATH_TO_MISP}; done
+  false; while [[ $? -ne 0 ]]; do ${SUDO_WWW} git clone https://github.com/MISP/MISP.git --branch ${MISPVER} ${PATH_TO_MISP}; done
 
   ${SUDO_WWW} git config core.filemode false
 
