@@ -1,8 +1,8 @@
 
 FROM ubuntu:focal
 
-ARG MISPVER
-RUN echo "Building MISP version: $MISPVER"
+ARG MISP_VER
+RUN echo "Building MISP version: $MISP_VER"
 
 # Install core components
 ENV DEBIAN_FRONTEND noninteractive
@@ -22,22 +22,31 @@ RUN pip3 install --upgrade pip
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-RUN useradd misp && usermod -aG sudo misp
+#RUN useradd misp && usermod -aG sudo misp
+
+ARG SISMAP_USER=sismap
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} ${SISMAP_USER} || groupmod -n ${SISMAP_USER} `getent group ${GID} | cut -d: -f1` \
+    && useradd --shell /bin/bash -u ${UID} -g ${GID} -m ${SISMAP_USER}
+RUN  usermod -aG sudo ${SISMAP_USER}
 
 # Install script
-COPY --chown=misp:misp INSTALL_NODB.sh* ./
+COPY --chown=${SISMAP_USER}:${SISMAP_USER} INSTALL_NODB.sh* ./
 RUN chmod +x INSTALL_NODB.sh
 RUN echo "ALL ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+USER ${SISMAP_USER}
 
-USER misp
-
+ARG MISP_USER
+ARG MISP_PASSWORD
+ARG DBUSER_MISP
+ARG DBPASSWORD_MISP
 RUN bash INSTALL_NODB.sh -A -u
 
 USER root
 
 RUN pip3 list -o | cut -f1 -d' ' | tr " " "\n" | awk '{if(NR>=3)print}' | cut -d' ' -f1 | xargs -n1 pip3 install -U ; exit 0 #Hack error code
-
 
 # Supervisord Setup
 RUN ( \
@@ -62,13 +71,13 @@ RUN ( \
     echo 'command=/bin/bash /var/www/MISP/app/Console/worker/start.sh'; \
     echo 'startsecs = 0'; \
     echo 'autorestart = false'; \
-    echo 'user=www-data'; \
+    echo 'user=sismap'; \
     echo ''; \
     echo '[program:misp-modules]'; \
     echo 'command=/bin/bash -c "/var/www/MISP/venv/bin/misp-modules -l 127.0.0.1 -s"'; \
     echo 'startsecs = 0'; \
     echo 'autorestart = false'; \
-    echo 'user=www-data'; \
+    echo 'user=sismap'; \
     ) >> /etc/supervisor/conf.d/supervisord.conf
 
 # Add run script
