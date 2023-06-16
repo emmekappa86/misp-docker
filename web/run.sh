@@ -139,6 +139,11 @@ fi
 /var/www/MISP/app/Console/cake live 1
 chown www-data:www-data /var/www/MISP/app/Config/config.php*
 
+sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=$MISP_USER/g" /etc/apache2/envvars
+sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=$MISP_USER/g" /etc/apache2/envvars
+sed -i "s/www-data/$MISP_USER/g" /etc/supervisor/conf.d/supervisord.conf
+chown -R ${MISP_USER}:${MISP_USER} /var/www
+
 # Start supervisord
 echo "Starting supervisord"
 cd /
